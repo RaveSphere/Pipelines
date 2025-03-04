@@ -1,0 +1,27 @@
+name: Deploy RS-AuthService
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          repository: RaveSphere/RS-AuthService
+          path: RS-AuthService
+      - name: Build service and add to local repo
+        run: |
+          cd RS-AuthService
+          docker build -t rs-localrepo/rs-authservice:latest -f Api/Dockerfile .
+      - name: Downscale Kubernetes deployment
+        run: |
+          kubectl scale deployment rs-authservice --replicas=0
+      - name: Upload image to Minikube
+        run: |
+          minikube image load rs-localrepo/rs-authservice:latest
+      - name: Uoscale Kubernetes deployment
+        run: |
+          kubectl scale deployment rs-authservice --replicas=1
