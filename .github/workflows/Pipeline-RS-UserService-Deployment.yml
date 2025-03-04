@@ -11,6 +11,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: RaveSphere/RS-UserService
+          path: RS-UserService
       - name: Build service and add to local repo
         run: |
           cd RS-UserService
