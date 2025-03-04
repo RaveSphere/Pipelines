@@ -1,0 +1,26 @@
+name: Deploy RS-UserService
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          repository: RaveSphere/RS-UserService
+          path: RS-UserService
+      - name: Build service and add to local repo
+        run: |
+          docker build -t rs-localrepo/rs-userservice:latest -f Api/Dockerfile .
+      - name: Downscale Kubernetes deployment
+        run: |
+          kubectl scale deployment rs-userservice --replicas=0
+      - name: Upload image to Minikube
+        run: |
+          minikube image load rs-localrepo/rs-userservice:latest
+      - name: Uoscale Kubernetes deployment
+        run: |
+          kubectl scale deployment rs-userservice --replicas=1
